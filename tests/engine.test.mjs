@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {DEFAULT,createWorld,step,evaluate,search,mutate,rng,validatePhysics,metrics} from '../src/engine.mjs';
+test('deterministic replay',()=>{let a=createWorld(123),b=createWorld(123);for(let i=0;i<60;i++){step(a);step(b);}assert.deepEqual([...a.energy],[...b.energy]);assert.deepEqual(metrics(a),metrics(b));});
+test('bounded fields',()=>{let w=createWorld(4);for(let t=0;t<200;t++)step(w);for(let field of ['energy','charge','structure','residue','memory'])for(let v of w[field])assert.ok(Number.isFinite(v)&&v>=0&&v<=1,field+':'+v);});
+test('invalid physics rejected',()=>{assert.throws(()=>validatePhysics({...DEFAULT,conductivity:Infinity}));assert.throws(()=>validatePhysics({...DEFAULT,diffusion:9}));});
+test('mutations bounded',()=>{let p={...DEFAULT},rand=rng(3);for(let i=0;i<400;i++){p=mutate(p,rand);validatePhysics(p);}});
+test('search reproducible',()=>{let a=search({generations:16,seed:5,steps:20}),b=search({generations:16,seed:5,steps:20});assert.deepEqual(a,b);assert.ok(a.cells.length>=1&&a.cells.length<=16);});
+test('physics causally changes fields',()=>{let a=evaluate({...DEFAULT,diffusion:.02},[11],55),b=evaluate({...DEFAULT,diffusion:.48},[11],55);assert.notEqual(a.results[0].final.variance,b.results[0].final.variance);});
