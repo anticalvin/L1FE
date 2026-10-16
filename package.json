@@ -1,0 +1,1 @@
+{"name":"l1fe-possibility-engine","version":"0.14.0","type":"module","private":true,"scripts":{"test":"node --test","discover":"node src/cli.mjs","serve":"node src/server.mjs"},"engines":{"node":">=20"}}
